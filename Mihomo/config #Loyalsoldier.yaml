@@ -4,7 +4,7 @@
 # 机场订阅
 proxy-providers:
   灵魂云:
-    url: "https://submit.sdnlv0.cn:21443/api/v1/client/subscribe?token=727c5eca6d3ff815e13bd616ef2c51a4"
+    url: "https://submit.mylac.cn:21443/api/v1/client/subscribe?token=727c5eca6d3ff815e13bd616ef2c51a4"
     type: http
     interval: 86400
     health-check:
