@@ -1,0 +1,64 @@
+name: Build Tracker MRS Rule
+
+# 触发条件：每天北京时间早上 6 点运行，或者手动点击运行
+on:
+  schedule:
+    - cron: '0 22 * * *' 
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download and Process XIU2 Trackers
+        run: |
+          # 1. 下载原始数据 (使用 XIU2 的 best.txt 或 all.txt)
+          curl -sSL "https://cf.trackerslist.com/all.txt" -o raw_trackers.txt
+
+          # 2. 准备 YAML 头部
+          echo "payload:" > tracker_source.yaml
+
+          # 3. 数据清洗魔法 (关键步骤)
+          # grep -v: 去除空行
+          # sed: 移除 udp:// http:// 等前缀，移除端口号和路径，只保留纯域名
+          # awk: 格式化为 Mihomo 识别的 yaml 格式 (使用 DOMAIN-SUFFIX 匹配)
+          # sort | uniq: 去重
+          cat raw_trackers.txt | grep -v "^$" | \
+          sed -E 's#^[a-zA-Z0-9]+://##; s#:[0-9]+.*$##; s#/.*$##' | \
+          sort | uniq | \
+          awk '{print "  - DOMAIN-SUFFIX," $1}' >> tracker_source.yaml
+
+          # 打印一下看看前几行（调试用）
+          echo "=== Generated YAML Content (Top 10) ==="
+          head -n 10 tracker_source.yaml
+
+      - name: Setup Mihomo and Compile
+        run: |
+          # 1. 下载 Mihomo 内核 (用于编译规则)
+          # 这里使用 v1.18.10 版本，你可以根据需要修改
+          wget https://github.com/MetaCubeX/mihomo/releases/download/v1.19.16/mihomo-linux-amd64-v1.19.16.gz
+          gunzip mihomo-linux-amd64-v1.19.16.gz
+          mv mihomo-linux-amd64-v1.19.16 mihomo
+          chmod +x mihomo
+
+          # 2. 编译规则 (convert-ruleset)
+          # 命令格式: ./mihomo convert-ruleset domain [格式] [源文件] [输出文件]
+          ./mihomo convert-ruleset domain yaml tracker_source.yaml trackers.mrs
+
+      - name: Commit and Push
+        run: |
+          # 配置 git
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # 提交生成的 trackers.mrs 文件
+          # 如果文件没有变化，git commit 会失败，所以加上 || exit 0 防止报错
+          git add trackers.mrs
+          git commit -m "Auto-update trackers.mrs from XIU2" || exit 0
+          git push
