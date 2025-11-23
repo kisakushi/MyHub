@@ -46,9 +46,19 @@ jobs:
 
       - name: Commit and Push
         run: |
+          # 1. 清理垃圾文件 (只保留生成的 rules 和 git 目录)
+          # 这一步很重要，防止把 mihomo 这种大文件传到仓库里
+          rm -f raw_trackers.txt cleaned_domains.txt optimized_domains.txt tracker_source.yaml mihomo
+
+          # 2. 配置 Git
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-          git add trackers.mrs
-          git commit -m "Auto-update trackers.mrs from XIU2" || exit 0
+          # 3. 强制生成一个日志文件 (为了触发更新)
+          # 写入当前时间到 log 文件，这样 Git 就会认为有“新变化”
+          echo "Last check: $(date)" > update_log.txt
+
+          # 4. 提交
+          git add trackers.mrs update_log.txt
+          git commit -m "Auto-update trackers.mrs" || exit 0
           git push
