@@ -4,7 +4,7 @@
 # 机场订阅
 proxy-providers:
   机场名称:
-    url: "订阅链接"
+    url: "机场订阅"
     type: http
     interval: 86400
     health-check:
@@ -106,15 +106,15 @@ proxy-groups:
   - {name: 🤖 AI, <<: *pr}
   - {name: 🎥 NETFLIX, <<: *pr}
   - {name: 🐟 漏网之鱼, <<: *pr}
-  - {name: 🔯 香港故转, type: fallback, tolerance: 20, interval: 300, proxies: [♻️ 香港自动, ♻️ 日本自动, ♻️ 台湾自动, ♻️ 新加坡自动, ♻️ 低倍率自动, ♻️ 美国自动]}
-  - {name: 🔯 日本故转, type: fallback, tolerance: 20, interval: 300, proxies: [♻️ 日本自动, ♻️ 台湾自动, ♻️ 新加坡自动, ♻️ 低倍率AI自动, ♻️ 美国自动]}
+  - {name: 🔯 香港故转, type: fallback, tolerance: 20, interval: 300, proxies: [♻️ 香港自动, ♻️ 低倍率自动, ♻️ 日本自动, ♻️ 台湾自动, ♻️ 新加坡自动, ♻️ 美国自动]}
+  - {name: 🔯 日本故转, type: fallback, tolerance: 20, interval: 300, proxies: [♻️ 日本自动, ♻️ 低倍率AI自动, ♻️ 台湾自动, ♻️ 新加坡自动, ♻️ 美国自动]}
   - {name: ♻️ 香港自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(港|HK|(?i)Hong))^((?!(低倍率)).)*$"}
+  - {name: ♻️ 低倍率自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?i)低倍率"}
   - {name: ♻️ 日本自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(日|JP|(?i)Japan))^((?!(低倍率)).)*$"}
+  - {name: ♻️ 低倍率AI自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?i)^(?=.*低倍率)(?!.*(港|HK|Hong)).*$"}
   - {name: ♻️ 台湾自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(台|TW|(?i)Tai))^((?!(低倍率)).)*$"}
   - {name: ♻️ 新加坡自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(新|SG|(?i)Xin))^((?!(低倍率)).)*$"}
   - {name: ♻️ 美国自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(美|US|(?i)States|America))^((?!(低倍率)).)*$"}
-  - {name: ♻️ 低倍率自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?i)低倍率"}
-  - {name: ♻️ 低倍率AI自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?i)^(?=.*低倍率)(?!.*(港|HK|Hong)).*$"}
   - {name: 🇭🇰 香港节点, type: select, include-all: true, filter: "(?i)港|hk|hongkong|hong kong"}
   - {name: 🇯🇵 日本节点, type: select, include-all: true, filter: "(?i)日|jp|japan"}
   - {name: 🇹🇼 台湾节点, type: select, include-all: true, filter: "(?i)台|tw|taiwan|tai wan"}
